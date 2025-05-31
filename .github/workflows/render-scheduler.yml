@@ -1,0 +1,27 @@
+name: Pause/Resume Render Service
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'   # 08:00 UTC, seg-sex
+    - cron: '0 16 * * 1-5'  # 18:00 UTC, seg-sex
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Choose action based on time
+        id: time
+        run: |
+          HOUR=$(date -u +"%H")
+          if [ "$HOUR" -eq 5 ]; then
+            echo "action=resume" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" -eq 20 ]; then
+            echo "action=suspend" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call Render API
+        run: |
+          curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/${{ steps.time.outputs.action }} \
+          -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
