@@ -27,7 +27,7 @@ jobs:
 
   call-shared:
     needs: decide-action
-    uses: ./.github/workflows-common/render-control.yml
+    uses: ./.github/workflows/render-control.yml
     with:
       action: ${{ needs.decide-action.outputs.action }}
 

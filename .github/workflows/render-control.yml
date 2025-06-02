@@ -1,0 +1,29 @@
+name: Render Control
+
+on:
+  workflow_call:
+    inputs:
+      action:
+        required: true
+        type: string
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Render API
+        run: |
+          ACTION="${{ inputs.action }}"
+          RESPONSE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/$ACTION \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
+
+          if [ "$RESPONSE" -eq 202 ]; then
+            echo "✅ Serviço '$ACTION' executado com sucesso (HTTP 202)."
+          else
+            echo "❌ Falha ao executar '$ACTION'. Código HTTP: $RESPONSE"
+            cat response.txt
+            exit 1
+          fi
+

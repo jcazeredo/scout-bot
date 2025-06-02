@@ -5,7 +5,7 @@ on:
 
 jobs:
   call-shared:
-    uses: ./.github/workflows-common/render-control.yml
+    uses: ./.github/workflows/render-control.yml
     with:
       action: resume
 
