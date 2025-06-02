@@ -8,4 +8,6 @@ jobs:
     uses: ./.github/workflows/render-control.yml
     with:
       action: suspend
-
+    secrets:
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

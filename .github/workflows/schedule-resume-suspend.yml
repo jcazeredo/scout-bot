@@ -30,4 +30,6 @@ jobs:
     uses: ./.github/workflows/render-control.yml
     with:
       action: ${{ needs.decide-action.outputs.action }}
-
+    secrets:
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
