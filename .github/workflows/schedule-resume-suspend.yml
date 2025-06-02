@@ -1,0 +1,33 @@
+name: Pause/Resume Render Service (Scheduled)
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'   # 08:00 GMT+2 → resume
+    - cron: '0 16 * * 1-5'  # 18:00 GMT+2 → suspend
+  workflow_dispatch:
+
+jobs:
+  decide-action:
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.set.outputs.action }}
+    steps:
+      - name: Set action based on time
+        id: set
+        run: |
+          HOUR=$(date -u +"%H")
+          if [ "$HOUR" -eq 6 ]; then
+            echo "action=resume" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" -eq 16 ]; then
+            echo "action=suspend" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Horário inválido para execução automática."
+            exit 1
+          fi
+
+  call-shared:
+    needs: decide-action
+    uses: ./.github/workflows-common/render-control.yml
+    with:
+      action: ${{ needs.decide-action.outputs.action }}
+

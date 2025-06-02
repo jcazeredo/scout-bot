@@ -1,0 +1,11 @@
+name: Suspend Render Service (Manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-shared:
+    uses: ./.github/workflows-common/render-control.yml
+    with:
+      action: suspend
+
