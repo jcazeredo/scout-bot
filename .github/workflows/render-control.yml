@@ -12,18 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call Render API
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
+          ACTION: ${{ inputs.action }}
         run: |
-          ACTION="${{ inputs.action }}"
           RESPONSE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
-            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/$ACTION \
+            "https://api.render.com/v1/services/${SERVICE_ID}/${ACTION}" \
             -H "Accept: application/json" \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
+            -H "Authorization: Bearer ${API_KEY}")
 
           if [ "$RESPONSE" -eq 202 ]; then
-            echo "✅ Serviço '$ACTION' executado com sucesso (HTTP 202)."
+            echo "✅ Serviço '${ACTION}' executado com sucesso (HTTP 202)."
           else
-            echo "❌ Falha ao executar '$ACTION'. Código HTTP: $RESPONSE"
+            echo "❌ Falha ao executar '${ACTION}'. Código HTTP: $RESPONSE"
             cat response.txt
             exit 1
           fi
-
