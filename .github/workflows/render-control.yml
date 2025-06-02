@@ -6,6 +6,11 @@ on:
       action:
         required: true
         type: string
+    secrets:
+      RENDER_SERVICE_ID:
+        required: true
+      RENDER_API_KEY:
+        required: true
 
 jobs:
   render:
