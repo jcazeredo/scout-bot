@@ -17,15 +17,10 @@ jobs:
           API_KEY: ${{ secrets.RENDER_API_KEY }}
           ACTION: ${{ inputs.action }}
         run: |
-          RESPONSE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
-            "https://api.render.com/v1/services/${SERVICE_ID}/${ACTION}" \
-            -H "Accept: application/json" \
-            -H "Authorization: Bearer ${API_KEY}")
+          CMD="curl -s -o response.txt -w \"%{http_code}\" -X POST \
+          \"https://api.render.com/v1/services/${SERVICE_ID}/${ACTION}\" \
+          -H \"Accept: application/json\" \
+          -H \"Authorization: Bearer ${API_KEY}\""
 
-          if [ "$RESPONSE" -eq 202 ]; then
-            echo "✅ Serviço '${ACTION}' executado com sucesso (HTTP 202)."
-          else
-            echo "❌ Falha ao executar '${ACTION}'. Código HTTP: $RESPONSE"
-            cat response.txt
-            exit 1
-          fi
+          echo "Comando curl que seria executado:"
+          echo "$CMD"
