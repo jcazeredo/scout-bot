@@ -126,20 +126,18 @@ async function run() {
   while (true) {
     runNumber++;
 
-    start_message = `🚀 Starting run #${runNumber}`
-    log(start_message);
-    await sendTelegramMessage(start_message);
-
     const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage'
-      ],
-      // Use environment variable if set, otherwise default
-      executablePath: process.env.CHROME_PATH || undefined
-    });  
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu'
+    ],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+  });
+
+
     const pages = await browser.pages();
     await pages[0].close();
     const page = await browser.newPage();
@@ -147,11 +145,23 @@ async function run() {
     let attemptNumber = 0;
     let foundCourses = null;
 
+    start_message = `🚀 Starting run #${runNumber}`
+    log(start_message);
+    await sendTelegramMessage(start_message);
+
     while (!foundCourses) {
       attemptNumber++;
       foundCourses = await attemptSearch(page, attemptNumber);
       if (!foundCourses) {
         await delay(ONE_MINUTE);
+      }
+
+      if (attemptNumber >= 5) {
+        message = `❗️ Max attempts reached for run #${runNumber}, stopping search.`
+        log(message);
+        await sendTelegramMessage(message);
+        await browser.close();
+        return;
       }
     }
 
@@ -172,20 +182,3 @@ async function run() {
 }
 
 run();
-
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Scout Bot is running!');
-});
-
-// Health check (Render verifica esse endpoint)
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  log(`Server running on PORT: ${PORT}`);
-});
